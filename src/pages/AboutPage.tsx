@@ -43,7 +43,7 @@ const AboutPage = () => (
           </motion.h1>
           <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.7 }}
             className="text-lg md:text-xl text-primary-foreground/80 max-w-3xl mx-auto leading-relaxed">
-            Born in Mankiala, Rawalpindi — Pizza King is a fast-food brand built on bold flavour, big portions and young energy. Fast Food. Big Taste. Young Vibes.
+            Born in Mankiala, Rawalpindi — Pizza King is a fast-food brand built on bold flavour, big portions and king energy. Fast Food. Big Taste. King Vibes.
           </motion.p>
         </div>
       </section>

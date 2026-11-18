@@ -95,7 +95,7 @@ export default function POSLogin() {
             </div>
             <h1 className="text-2xl font-heading font-bold text-foreground">POS Terminal Login</h1>
             <p className="text-muted-foreground mt-1">{BUSINESS.name}</p>
-            <p className="text-xs italic text-primary/80 mt-1">Fast Food • Big Taste • Young Vibes</p>
+            <p className="text-xs italic text-primary/80 mt-1">Fast Food • Big Taste • King Vibes</p>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-5">

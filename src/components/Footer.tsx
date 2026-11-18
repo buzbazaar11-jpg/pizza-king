@@ -29,7 +29,7 @@ const Footer = () => {
             </div>
             <p className="text-primary text-xs font-semibold uppercase tracking-widest mb-3">Fast Food Restaurant</p>
             <p className="text-background/70 mb-6 leading-relaxed text-sm">
-              Fast Food. Big Taste. Young Vibes. Burgers, pizza, fried chicken, wraps and fries — fired up fresh and delivered hot across Rawalpindi.
+              Fast Food. Big Taste. King Vibes. Burgers, pizza, fried chicken, wraps and fries — fired up fresh and delivered hot across Rawalpindi.
             </p>
             <div className="flex gap-3">
               {[

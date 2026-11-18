@@ -47,7 +47,7 @@ const Header = () => {
               <img src={logo} alt="Pizza King" className="w-10 h-10 md:w-12 md:h-12 rounded-full object-cover ring-2 ring-primary/30" />
               <div className="leading-tight">
                 <div className="font-heading font-extrabold text-base md:text-xl text-primary">Pizza King <span className="text-secondary"></span></div>
-                <div className="text-[10px] md:text-[11px] text-muted-foreground italic -mt-0.5">Fast Food • Big Taste • Young Vibes</div>
+                <div className="text-[10px] md:text-[11px] text-muted-foreground italic -mt-0.5">Fast Food • Big Taste • King Vibes</div>
               </div>
             </Link>
 
@@ -123,7 +123,7 @@ const Header = () => {
                     <img src={logo} alt="Logo" className="w-8 h-8 rounded-full" />
                     Pizza King
                   </SheetTitle>
-                  <p className="text-xs italic text-muted-foreground mb-5">Fast Food • Big Taste • Young Vibes</p>
+                  <p className="text-xs italic text-muted-foreground mb-5">Fast Food • Big Taste • King Vibes</p>
                   <div className="flex flex-col gap-3">
                     {navLinks.map((link) => (
                       <Link key={link.label} to={link.href} className={`text-lg font-medium py-2.5 border-b border-border/50 transition-colors ${location.pathname === link.href ? "text-primary" : "text-foreground/80 hover:text-primary"}`}>

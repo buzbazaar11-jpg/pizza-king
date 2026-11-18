@@ -62,7 +62,7 @@ const ContactPage = () => {
     {
       icon: Mail,
       title: "Email Us",
-      detail: settings?.contact_email || "info@theyoungmalang.com",
+      detail: settings?.contact_email || "info@pizzaking.pk",
       color: "bg-blue-500/10 text-blue-600",
     },
     {

@@ -69,7 +69,7 @@ export default function RiderLayout({ children, title }: RiderLayoutProps) {
         <img src={logo} alt="Logo" className="w-8 h-8 rounded-full ring-2 ring-primary/30" />
         <div className="leading-tight">
           <p className="font-heading font-bold text-sm text-foreground">Pizza King Rider</p>
-          <p className="text-[10px] italic text-muted-foreground -mt-0.5">Fast Food • Big Taste • Young Vibes</p>
+          <p className="text-[10px] italic text-muted-foreground -mt-0.5">Fast Food • Big Taste • King Vibes</p>
         </div>
         <div className="flex-1" />
         {title && <span className="text-sm font-medium text-muted-foreground hidden sm:block">{title}</span>}

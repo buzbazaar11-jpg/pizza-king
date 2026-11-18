@@ -1,13 +1,13 @@
 /** Single source of truth for business contact details. */
 export const BUSINESS = {
   name: "Pizza King",
-  tagline: "Fast Food. Big Taste. Young Vibes.",
+  tagline: "Fast Food. Big Taste. King Vibes.",
   type: "Fast Food Restaurant",
-  address: "Mankiala, Rawalpindi, Pakistan",
+  address: "PWD Islamabad, Opposite London Bakery, Mankiala, Rawalpindi",
   phone: "0349 8190030",
-  phoneIntl: "+92 3173712950",
+  phoneIntl: "+92 3498190030",
   whatsapp: "923173712950",
-  email: "info@theyoungmalang.com",
+  email: "info@pizzaking.pk",
 } as const;
 
 /** Software/website developer credit (kept subtle, secondary to the restaurant brand). */

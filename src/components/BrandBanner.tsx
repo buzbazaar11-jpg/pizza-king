@@ -50,11 +50,11 @@ const BrandBanner = () => {
 
             <h2 className="font-heading font-extrabold text-3xl md:text-5xl lg:text-6xl leading-tight text-foreground">
               Fast Food, <span className="text-primary">Big Taste</span>,
-              <br /><span className="text-secondary">Young Vibes</span>
+              <br /><span className="text-secondary">King Vibes</span>
             </h2>
 
             <p className="italic text-lg md:text-2xl font-bold text-primary tracking-wide">
-              "Fast Food • Big Taste • Young Vibes"
+              "Fast Food • Big Taste • King Vibes"
             </p>
 
             <p className="text-muted-foreground text-base md:text-lg leading-relaxed max-w-xl mx-auto lg:mx-0">

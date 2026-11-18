@@ -68,7 +68,7 @@ const AdminLogin = () => {
             </div>
             <h1 className="text-2xl font-heading font-bold text-foreground">Admin Login</h1>
             <p className="text-muted-foreground mt-1">Pizza King Dashboard</p>
-            <p className="text-xs italic text-primary/80 mt-1">Fast Food • Big Taste • Young Vibes</p>
+            <p className="text-xs italic text-primary/80 mt-1">Fast Food • Big Taste • King Vibes</p>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-5">
@@ -81,7 +81,7 @@ const AdminLogin = () => {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@theyoungmalang.com"
+                placeholder="admin@pizzaking.pk"
                 required
               />
             </div>
