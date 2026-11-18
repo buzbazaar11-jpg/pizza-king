@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, Trash2, Pencil, LayoutGrid } from "lucide-react";
+import { Plus, Trash2, Pencil, LayoutGrid, RefreshCw, Settings2 } from "lucide-react";
 
 interface PosTable {
   id: string;
@@ -22,16 +22,32 @@ interface PosTable {
   active: boolean;
 }
 
+interface DineInOrder {
+  id: string;
+  table_no: number;
+  items: { title: string; quantity: number; price: number }[];
+  total: number;
+  status: string;
+  created_at: string;
+}
+
 const empty = { table_no: "", name: "", seats: "4", area: "Main hall" };
 
 export default function POSTables() {
   const { toast } = useToast();
   const [rows, setRows] = useState<PosTable[]>([]);
   const [loading, setLoading] = useState(true);
-  const [open, setOpen] = useState(false);
+  // CRUD dialog
+  const [crudOpen, setCrudOpen] = useState(false);
+  const [manageOpen, setManageOpen] = useState(false);
   const [editing, setEditing] = useState<PosTable | null>(null);
   const [form, setForm] = useState(empty);
   const [saving, setSaving] = useState(false);
+  // Active order dialog
+  const [activeTable, setActiveTable] = useState<PosTable | null>(null);
+  const [activeOrder, setActiveOrder] = useState<DineInOrder | null>(null);
+  const [orderLoading, setOrderLoading] = useState(false);
+  const [settling, setSettling] = useState(false);
 
   const load = useCallback(async () => {
     const { data, error } = await supabase.from("pos_tables" as any).select("*").order("table_no");
@@ -42,18 +58,66 @@ export default function POSTables() {
 
   useEffect(() => {
     load();
+    const ch = supabase
+      .channel("pos-tables-rt")
+      .on("postgres_changes", { event: "*", schema: "public", table: "pos_tables" }, () => load())
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
   }, [load]);
 
+  const openTableOrder = async (t: PosTable) => {
+    if (!t.reserved) return; // only occupied tables have orders to show
+    setActiveTable(t);
+    setActiveOrder(null);
+    setOrderLoading(true);
+    const { data, error } = await (supabase as any)
+      .from("dine_in_orders")
+      .select("*")
+      .eq("table_no", t.table_no)
+      .in("status", ["pending", "accepted", "preparing", "ready", "served"])
+      .order("created_at", { ascending: false })
+      .limit(1);
+    setOrderLoading(false);
+    if (error) {
+      toast({ title: "Order load failed", description: error.message, variant: "destructive" });
+      return;
+    }
+    setActiveOrder((data?.[0] as DineInOrder) ?? null);
+  };
+
+  const settle = async () => {
+    if (!activeOrder || !activeTable) return;
+    setSettling(true);
+    const { error: e1 } = await (supabase as any)
+      .from("dine_in_orders")
+      .update({ status: "completed" })
+      .eq("id", activeOrder.id);
+    const { error: e2 } = await (supabase as any)
+      .from("pos_tables")
+      .update({ reserved: false })
+      .eq("id", activeTable.id);
+    setSettling(false);
+    if (e1 || e2) {
+      toast({ title: "Settle failed", description: (e1 || e2)!.message, variant: "destructive" });
+      return;
+    }
+    toast({ title: `Table ${activeTable.table_no} freed` });
+    setActiveTable(null);
+    setActiveOrder(null);
+    load();
+  };
+
+  // CRUD
   const startAdd = () => {
     setEditing(null);
     setForm({ ...empty, table_no: String((rows.at(-1)?.table_no || 0) + 1) });
-    setOpen(true);
+    setCrudOpen(true);
   };
 
   const startEdit = (t: PosTable) => {
     setEditing(t);
     setForm({ table_no: String(t.table_no), name: t.name, seats: String(t.seats), area: t.area });
-    setOpen(true);
+    setCrudOpen(true);
   };
 
   const save = async () => {
@@ -76,7 +140,7 @@ export default function POSTables() {
       toast({ title: "Save failed", description: error.message, variant: "destructive" });
       return;
     }
-    setOpen(false);
+    setCrudOpen(false);
     toast({ title: editing ? "Table updated" : "Table added" });
     load();
   };
@@ -103,103 +167,192 @@ export default function POSTables() {
     toast({ title: "Table removed" });
   };
 
+  const tableCardClass = (t: PosTable) => {
+    if (!t.active) return "bg-gray-50 border-gray-300 dark:bg-gray-900";
+    if (t.reserved) return "bg-red-50 border-red-400 dark:bg-red-950 cursor-pointer";
+    return "bg-green-50 border-green-400 dark:bg-green-950";
+  };
+
   return (
     <POSLayout title="Dine in tables">
       <div className="space-y-4">
-        <div className="flex items-center justify-between gap-3">
+        {/* Toolbar */}
+        <div className="flex items-center justify-between gap-3 flex-wrap">
           <p className="text-sm text-muted-foreground">{rows.length} tables</p>
-          <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-              <Button className="gap-2" onClick={startAdd}>
-                <Plus className="w-4 h-4" /> Add table
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-md">
-              <DialogHeader>
-                <DialogTitle>{editing ? "Edit table" : "New table"}</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-3">
-                <div>
-                  <Label>Table number</Label>
-                  <Input
-                    inputMode="numeric"
-                    value={form.table_no}
-                    onChange={(e) => setForm({ ...form, table_no: e.target.value })}
-                  />
-                </div>
-                <div>
-                  <Label>Name</Label>
-                  <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <Label>Seats</Label>
-                    <Input
-                      inputMode="numeric"
-                      value={form.seats}
-                      onChange={(e) => setForm({ ...form, seats: e.target.value })}
-                    />
-                  </div>
-                  <div>
-                    <Label>Area</Label>
-                    <Input value={form.area} onChange={(e) => setForm({ ...form, area: e.target.value })} />
-                  </div>
-                </div>
-                <Button className="w-full" disabled={saving} onClick={save}>
-                  {saving ? "Saving" : "Save table"}
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" className="gap-2" onClick={load}>
+              <RefreshCw className="w-4 h-4" /> Refresh
+            </Button>
+            {/* Manage Tables dialog (CRUD) */}
+            <Dialog open={manageOpen} onOpenChange={setManageOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline" size="sm" className="gap-2">
+                  <Settings2 className="w-4 h-4" /> Manage Tables
                 </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle>Manage Tables</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-3">
+                  <Button className="gap-2" size="sm" onClick={startAdd}>
+                    <Plus className="w-4 h-4" /> Add table
+                  </Button>
+                  {rows.map((t) => (
+                    <Card key={t.id} className="p-3 flex items-center gap-3">
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-sm truncate">{t.name}</p>
+                        <p className="text-xs text-muted-foreground">
+                          #{t.table_no} · {t.seats} seats · {t.area}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs shrink-0">
+                        <span>Reserved</span>
+                        <Switch checked={t.reserved} onCheckedChange={() => toggle(t, "reserved")} />
+                        <span>Active</span>
+                        <Switch checked={t.active} onCheckedChange={() => toggle(t, "active")} />
+                      </div>
+                      <Button size="sm" variant="outline" onClick={() => startEdit(t)}>
+                        <Pencil className="w-3.5 h-3.5" />
+                      </Button>
+                      <Button size="sm" variant="ghost" onClick={() => remove(t)}>
+                        <Trash2 className="w-3.5 h-3.5 text-destructive" />
+                      </Button>
+                    </Card>
+                  ))}
+                </div>
+              </DialogContent>
+            </Dialog>
+          </div>
         </div>
 
+        {/* Floor map grid */}
         {loading ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
-            {Array.from({ length: 8 }).map((_, i) => (
-              <Skeleton key={i} className="h-36 rounded-xl" />
+          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
+            {Array.from({ length: 10 }).map((_, i) => (
+              <Skeleton key={i} className="h-32 rounded-xl" />
             ))}
           </div>
         ) : rows.length === 0 ? (
           <Card className="p-10 text-center text-muted-foreground">
             <LayoutGrid className="w-8 h-8 mx-auto mb-2" />
-            No tables yet. Add your first table.
+            No tables yet. Use "Manage Tables" to add tables.
           </Card>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
             {rows.map((t) => (
-              <Card key={t.id} className={`p-4 space-y-2 ${t.reserved ? "border-primary" : ""}`}>
-                <div className="flex items-start justify-between gap-2">
-                  <div className="min-w-0">
-                    <p className="font-semibold truncate">{t.name}</p>
-                    <p className="text-xs text-muted-foreground">
-                      Table {t.table_no} · {t.seats} seats · {t.area}
-                    </p>
-                  </div>
-                  <Badge variant={t.reserved ? "default" : "secondary"} className="shrink-0">
-                    {t.reserved ? "Reserved" : "Free"}
-                  </Badge>
-                </div>
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-muted-foreground">Reserved</span>
-                  <Switch checked={t.reserved} onCheckedChange={() => toggle(t, "reserved")} />
-                </div>
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-muted-foreground">Active</span>
-                  <Switch checked={t.active} onCheckedChange={() => toggle(t, "active")} />
-                </div>
-                <div className="flex gap-2 pt-1">
-                  <Button size="sm" variant="outline" className="flex-1 gap-1.5" onClick={() => startEdit(t)}>
-                    <Pencil className="w-3.5 h-3.5" /> Edit
-                  </Button>
-                  <Button size="sm" variant="ghost" onClick={() => remove(t)}>
-                    <Trash2 className="w-3.5 h-3.5 text-destructive" />
-                  </Button>
+              <Card
+                key={t.id}
+                className={`p-4 border-2 space-y-1 transition-all ${tableCardClass(t)}`}
+                onClick={() => t.reserved ? openTableOrder(t) : undefined}
+              >
+                <div className="text-3xl font-black text-center">{t.table_no}</div>
+                <div className="text-center text-sm font-medium truncate">{t.name}</div>
+                <div className="text-center text-xs text-muted-foreground">{t.seats} seats · {t.area}</div>
+                <div className="flex justify-center pt-1">
+                  {!t.active ? (
+                    <Badge variant="secondary">Inactive</Badge>
+                  ) : t.reserved ? (
+                    <Badge variant="destructive">Occupied</Badge>
+                  ) : (
+                    <Badge className="bg-green-600 hover:bg-green-700">Free</Badge>
+                  )}
                 </div>
               </Card>
             ))}
           </div>
         )}
       </div>
+
+      {/* Add / Edit table CRUD dialog */}
+      <Dialog open={crudOpen} onOpenChange={setCrudOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>{editing ? "Edit table" : "New table"}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div>
+              <Label>Table number</Label>
+              <Input
+                inputMode="numeric"
+                value={form.table_no}
+                onChange={(e) => setForm({ ...form, table_no: e.target.value })}
+              />
+            </div>
+            <div>
+              <Label>Name</Label>
+              <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label>Seats</Label>
+                <Input
+                  inputMode="numeric"
+                  value={form.seats}
+                  onChange={(e) => setForm({ ...form, seats: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label>Area</Label>
+                <Input value={form.area} onChange={(e) => setForm({ ...form, area: e.target.value })} />
+              </div>
+            </div>
+            <Button className="w-full" disabled={saving} onClick={save}>
+              {saving ? "Saving…" : "Save table"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Active order dialog */}
+      <Dialog open={!!activeTable} onOpenChange={(o) => { if (!o) { setActiveTable(null); setActiveOrder(null); } }}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Table {activeTable?.table_no} — {activeTable?.name}</DialogTitle>
+          </DialogHeader>
+          {orderLoading ? (
+            <div className="space-y-2">
+              <Skeleton className="h-6 w-full" />
+              <Skeleton className="h-6 w-3/4" />
+            </div>
+          ) : activeOrder ? (
+            <div className="space-y-4">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-muted-foreground border-b">
+                    <th className="text-left pb-1">Item</th>
+                    <th className="text-center pb-1">Qty</th>
+                    <th className="text-right pb-1">Price</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(activeOrder.items || []).map((it, idx) => (
+                    <tr key={idx} className="border-b last:border-0">
+                      <td className="py-1">{it.title}</td>
+                      <td className="text-center">{it.quantity}</td>
+                      <td className="text-right">Rs {Number(it.price) * it.quantity}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <div className="flex justify-between font-bold text-base pt-1 border-t">
+                <span>Total</span>
+                <span>Rs {Number(activeOrder.total)}</span>
+              </div>
+              <div className="flex gap-2 pt-2">
+                <Button variant="outline" className="flex-1" onClick={() => window.print()}>
+                  Print Bill
+                </Button>
+                <Button className="flex-1" disabled={settling} onClick={settle}>
+                  {settling ? "Settling…" : "Settle & Free Table"}
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <p className="text-muted-foreground text-sm">No active order found for this table.</p>
+          )}
+        </DialogContent>
+      </Dialog>
     </POSLayout>
   );
 }

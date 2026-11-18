@@ -12,7 +12,6 @@ import { Minus, Plus, ShoppingBag, CheckCircle2, Clock, ChefHat, Bell, UtensilsC
 
 interface Item { id: string; title: string; price: number; image_url: string; description: string | null; category: string }
 interface Track { id: string; table_no: number; table_name: string; customer_name: string; items: { title: string; quantity: number; price: number }[]; total: number; status: string; created_at: string }
-interface TrackedOrder extends Track { tracking_token: string }
 
 const STEPS = [
   { key: "pending", label: "Received", icon: Clock },
@@ -79,14 +78,16 @@ export default function TableMenuPage() {
     if (error) return toast({ title: "Order failed", description: error.message, variant: "destructive" });
     const placed = (Array.isArray(data) ? data[0] : data) as { id: string; tracking_token: string } | null;
     if (!placed?.tracking_token) return toast({ title: "Order status unavailable", description: "Please ask staff to check your order.", variant: "destructive" });
+    // Mark the table as occupied (reserved: true)
+    await (supabase as any).from("pos_tables").update({ reserved: true }).eq("id", table!.id);
     const tokens = [placed.tracking_token, ...orderTokens];
     localStorage.setItem(storeKey, JSON.stringify(tokens));
     setOrderTokens(tokens); setCart({}); setNotes(""); setCheckout(false);
-    toast({ title: "Order placed", description: "You can track it below" });
+    toast({ title: "Order placed! Show this to your waiter.", description: `Token: ${placed.tracking_token}` });
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  if (table === undefined) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Loading menu</div>;
+  if (table === undefined) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Loading menu…</div>;
   if (table === null) return (
     <div className="min-h-screen flex flex-col items-center justify-center gap-3 p-6 text-center">
       <img src={logo} alt="Pizza King" className="w-24" />
@@ -99,7 +100,10 @@ export default function TableMenuPage() {
     <div className="min-h-screen bg-background pb-28">
       <header className="sticky top-0 z-20 bg-card/95 backdrop-blur border-b px-4 py-3 flex items-center gap-3">
         <img src={logo} alt="Pizza King" className="w-11 h-11" />
-        <div className="flex-1"><p className="font-bold leading-tight">Pizza King</p><p className="text-xs text-muted-foreground">Dine in menu</p></div>
+        <div className="flex-1">
+          <p className="font-bold leading-tight">Welcome to {table.name} — Pizza King</p>
+          <p className="text-xs text-muted-foreground">Dine in menu</p>
+        </div>
         <Badge className="text-sm">{table.name}</Badge>
       </header>
 
@@ -110,8 +114,15 @@ export default function TableMenuPage() {
             const idx = STEPS.findIndex((s) => s.key === t.status);
             return (
               <Card key={t.id} className="p-4 space-y-3">
-                <div className="flex justify-between text-sm"><span>{t.items.map((i) => `${i.quantity} x ${i.title}`).join(", ")}</span><span className="font-semibold shrink-0 ml-2">Rs {Number(t.total)}</span></div>
-                {t.status === "cancelled" ? <Badge variant="destructive">Cancelled</Badge> : t.status === "completed" ? <Badge>Completed, thank you</Badge> : (
+                <div className="flex justify-between text-sm">
+                  <span>{t.items.map((i) => `${i.quantity} x ${i.title}`).join(", ")}</span>
+                  <span className="font-semibold shrink-0 ml-2">Rs {Number(t.total)}</span>
+                </div>
+                {t.status === "cancelled" ? (
+                  <Badge variant="destructive">Cancelled</Badge>
+                ) : t.status === "completed" ? (
+                  <Badge>Completed, thank you</Badge>
+                ) : (
                   <div className="flex justify-between">
                     {STEPS.map((s, i) => (
                       <div key={s.key} className={`flex flex-col items-center gap-1 text-[11px] ${i <= idx ? "text-primary" : "text-muted-foreground"}`}>
@@ -127,7 +138,11 @@ export default function TableMenuPage() {
       )}
 
       <div className="sticky top-[68px] z-10 bg-background px-4 py-2 flex gap-2 overflow-x-auto no-scrollbar">
-        {cats.map((c) => <Button key={c} size="sm" variant={cat === c ? "default" : "outline"} className="shrink-0 rounded-full" onClick={() => setCat(c)}>{c}</Button>)}
+        {cats.map((c) => (
+          <Button key={c} size="sm" variant={cat === c ? "default" : "outline"} className="shrink-0 rounded-full" onClick={() => setCat(c)}>
+            {c}
+          </Button>
+        ))}
       </div>
 
       <main className="px-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -145,7 +160,9 @@ export default function TableMenuPage() {
                     <span>{cart[i.id]}</span>
                     <Button size="icon" className="h-8 w-8" onClick={() => change(i.id, 1)}><Plus className="w-4 h-4" /></Button>
                   </div>
-                ) : <Button size="sm" onClick={() => change(i.id, 1)}>Add</Button>}
+                ) : (
+                  <Button size="sm" onClick={() => change(i.id, 1)}>Add</Button>
+                )}
               </div>
             </div>
           </Card>
@@ -163,7 +180,7 @@ export default function TableMenuPage() {
           )}
           <Button className="w-full max-w-xl mx-auto flex" size="lg" disabled={placing} onClick={() => (checkout ? place() : setCheckout(true))}>
             <ShoppingBag className="w-5 h-5 mr-2" />
-            {checkout ? (placing ? "Placing order" : `Place order · Rs ${total}`) : `View order · ${count} items · Rs ${total}`}
+            {checkout ? (placing ? "Placing order…" : `Place Dine-in Order · Rs ${total}`) : `View order · ${count} items · Rs ${total}`}
           </Button>
         </div>
       )}
