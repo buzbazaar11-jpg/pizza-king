@@ -202,7 +202,7 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
 
     try {
       // Database verifies email confirmation and derives entitlements for auth.uid().
-      const { data, error } = await supabase.rpc("get_my_subscription_entitlements");
+      const { data, error } = await (supabase as any).rpc("get_my_subscription_entitlements");
 
       if (!error && Array.isArray(data)) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any

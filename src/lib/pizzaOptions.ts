@@ -25,9 +25,9 @@ export function usePizzaOptions() {
   const [loading, setLoading] = useState(true);
   useEffect(() => {
     let alive = true;
-    supabase.from("pizza_options").select("key,label,price,sort").eq("active", true).then(({ data }) => {
+    (supabase as any).from("pizza_options").select("key,label,price,sort").eq("active", true).then(({ data }: { data: PizzaOption[] | null }) => {
       if (!alive) return;
-      setGroups(groupOptions(((data as PizzaOption[]) || []).map((o) => ({ ...o, price: Number(o.price) }))));
+      setGroups(groupOptions((data || []).map((o) => ({ ...o, price: Number(o.price) }))));
       setLoading(false);
     });
     return () => { alive = false; };

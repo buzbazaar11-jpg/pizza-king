@@ -19,7 +19,7 @@ const RiderMap = () => {
       setOrders(data || []);
       const active = data?.find(o => ["out_for_delivery", "out for delivery"].includes(o.status));
       if (active) {
-        const { data: points } = await supabase.from("rider_gps_points").select("lat,lng").eq("order_id", active.id).order("recorded_at");
+        const { data: points } = await (supabase as any).from("rider_gps_points").select("lat,lng").eq("order_id", active.id).order("recorded_at");
         setGps(points || []);
       } else setGps([]);
     };

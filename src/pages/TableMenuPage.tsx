@@ -40,7 +40,7 @@ export default function TableMenuPage() {
 
   useEffect(() => {
     (async () => {
-      const { data } = await supabase.rpc("get_table_by_code", { _code: code });
+      const { data } = await (supabase as any).rpc("get_table_by_code", { _code: code });
       setTable(data?.[0] ?? null);
       const [f, d] = await Promise.all([
         supabase.from("foods").select("id,title,price,image_url,description,categories(title)").eq("active", true),

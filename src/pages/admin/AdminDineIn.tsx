@@ -27,6 +27,7 @@ const newCode = () => Math.random().toString(36).slice(2, 10).toUpperCase();
 
 export default function AdminDineIn() {
   const { toast } = useToast();
+  const db = supabase as any;
   const [tables, setTables] = useState<TableRow[]>([]);
   const [orders, setOrders] = useState<DineOrder[]>([]);
   const [menu, setMenu] = useState<MenuItem[]>([]);
@@ -45,11 +46,11 @@ export default function AdminDineIn() {
 
   const load = useCallback(async () => {
     const [t, o, f, d, r] = await Promise.all([
-      supabase.from("pos_tables").select("id,table_no,name,seats,code,active").order("table_no"),
-      supabase.from("dine_in_orders").select("*").order("created_at", { ascending: false }).limit(200),
-      supabase.from("foods").select("id,title,price").eq("active", true).order("title"),
-      supabase.from("deals").select("id,title,price").eq("active", true).order("title"),
-      supabase.from("table_service_requests").select("*").eq("status", "pending").order("created_at", { ascending: false }).limit(100),
+      db.from("pos_tables").select("id,table_no,name,seats,code,active").order("table_no"),
+      db.from("dine_in_orders").select("*").order("created_at", { ascending: false }).limit(200),
+      db.from("foods").select("id,title,price").eq("active", true).order("title"),
+      db.from("deals").select("id,title,price").eq("active", true).order("title"),
+      db.from("table_service_requests").select("*").eq("status", "pending").order("created_at", { ascending: false }).limit(100),
     ]);
     setRequests((r.data as ServiceReq[]) || []);
     setTables((t.data as TableRow[]) || []);
@@ -78,7 +79,7 @@ export default function AdminDineIn() {
 
   useEffect(() => {
     (async () => {
-      const { data } = await supabase.from("qr_frame_settings").select("frame_style,headline,tagline,frame_image_url").eq("id", 1).maybeSingle();
+      const { data } = await db.from("qr_frame_settings").select("frame_style,headline,tagline,frame_image_url").eq("id", 1).maybeSingle();
       if (!data) return;
       setFrame(data as FrameSettings);
       if (data.frame_image_url) {
@@ -102,7 +103,7 @@ export default function AdminDineIn() {
 
   const saveFrame = async (next: FrameSettings) => {
     setFrame(next);
-    const { error } = await supabase.from("qr_frame_settings").update({ frame_style: next.frame_style, headline: next.headline.slice(0, 60), tagline: next.tagline.slice(0, 80), frame_image_url: next.frame_image_url }).eq("id", 1);
+    const { error } = await db.from("qr_frame_settings").update({ frame_style: next.frame_style, headline: next.headline.slice(0, 60), tagline: next.tagline.slice(0, 80), frame_image_url: next.frame_image_url }).eq("id", 1);
     if (error) toast({ title: "Could not save frame", description: error.message, variant: "destructive" });
   };
 
@@ -121,7 +122,7 @@ export default function AdminDineIn() {
 
   const attend = async (r: ServiceReq) => {
     setRequests((x) => x.filter((y) => y.id !== r.id));
-    const { error } = await supabase.from("table_service_requests").update({ status: "attended", attended_at: new Date().toISOString() }).eq("id", r.id);
+    const { error } = await db.from("table_service_requests").update({ status: "attended", attended_at: new Date().toISOString() }).eq("id", r.id);
     if (error) { toast({ title: "Update failed", description: error.message, variant: "destructive" }); load(); }
   };
 
@@ -129,7 +130,7 @@ export default function AdminDineIn() {
     const n = Math.min(100, Math.max(1, Number(bulk) || 0));
     const start = (tables.at(-1)?.table_no || 0) + 1;
     const rows = Array.from({ length: n }, (_, i) => ({ table_no: start + i, name: `Table ${start + i}`, seats: 4, area: "Main hall", code: newCode() }));
-    const { error } = await supabase.from("pos_tables").insert(rows);
+    const { error } = await db.from("pos_tables").insert(rows);
     if (error) return toast({ title: "Could not add tables", description: error.message, variant: "destructive" });
     toast({ title: `${n} tables added with QR codes` });
     load();
@@ -137,13 +138,13 @@ export default function AdminDineIn() {
 
   const regen = async (t: TableRow) => {
     if (!confirm(`Make a new QR for ${t.name}? The old QR will stop working.`)) return;
-    await supabase.from("pos_tables").update({ code: newCode() }).eq("id", t.id);
+    await db.from("pos_tables").update({ code: newCode() }).eq("id", t.id);
     load();
   };
 
   const remove = async (t: TableRow) => {
     if (!confirm(`Delete ${t.name}?`)) return;
-    const { error } = await supabase.from("pos_tables").delete().eq("id", t.id);
+    const { error } = await db.from("pos_tables").delete().eq("id", t.id);
     if (error) toast({ title: "Delete failed", description: error.message, variant: "destructive" });
     load();
   };
@@ -168,7 +169,7 @@ export default function AdminDineIn() {
   };
 
   const setStatus = async (o: DineOrder, status: string) => {
-    const { error } = await supabase.from("dine_in_orders").update({ status }).eq("id", o.id);
+    const { error } = await db.from("dine_in_orders").update({ status }).eq("id", o.id);
     if (error) toast({ title: "Update failed", description: error.message, variant: "destructive" });
   };
 

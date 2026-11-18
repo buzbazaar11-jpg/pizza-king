@@ -27,7 +27,7 @@ export function useRiderGPS(riderId?: string) {
         if (!orderId || busy || Date.now() - lastSent < 5000) return;
         if (position.coords.accuracy > 50) { setMessage("Waiting for a more accurate GPS signal"); return; }
         busy = true;
-        const { error } = await supabase.rpc("record_rider_gps", { _order_id: orderId, _lat: position.coords.latitude, _lng: position.coords.longitude, _accuracy: position.coords.accuracy });
+        const { error } = await (supabase as any).rpc("record_rider_gps", { _order_id: orderId, _lat: position.coords.latitude, _lng: position.coords.longitude, _accuracy: position.coords.accuracy });
         busy = false;
         lastSent = Date.now();
         if (!stopped) setMessage(error ? error.message : "GPS tracking active");

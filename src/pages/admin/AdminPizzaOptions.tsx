@@ -18,11 +18,12 @@ const slug = (s: string) => s.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").r
 
 export default function AdminPizzaOptions() {
   const { toast } = useToast();
+  const db = supabase as any;
   const [rows, setRows] = useState<Row[]>([]);
   const [drafts, setDrafts] = useState<Record<string, { label: string; price: string }>>({});
 
   const load = useCallback(async () => {
-    const { data } = await supabase.from("pizza_options").select("key,label,price,sort,active").order("sort");
+    const { data } = await db.from("pizza_options").select("key,label,price,sort,active").order("sort");
     setRows(((data as Row[]) || []).map((r) => ({ ...r, price: Number(r.price) })));
   }, []);
   useEffect(() => { load(); }, [load]);
@@ -31,20 +32,20 @@ export default function AdminPizzaOptions() {
 
   const save = async (r: Row) => {
     if (!r.label.trim() || r.price < 0) return toast({ title: "Enter a name and a valid price", variant: "destructive" });
-    const { error } = await supabase.from("pizza_options").update({ label: r.label.trim(), price: r.price, active: r.active, sort: r.sort }).eq("key", r.key);
+    const { error } = await db.from("pizza_options").update({ label: r.label.trim(), price: r.price, active: r.active, sort: r.sort }).eq("key", r.key);
     if (error) return toast({ title: "Could not save", description: error.message, variant: "destructive" });
     toast({ title: `${r.label} saved` });
   };
 
   const toggle = async (r: Row, active: boolean) => {
     patch(r.key, { active });
-    const { error } = await supabase.from("pizza_options").update({ active }).eq("key", r.key);
+    const { error } = await db.from("pizza_options").update({ active }).eq("key", r.key);
     if (error) { toast({ title: "Could not update", description: error.message, variant: "destructive" }); load(); }
   };
 
   const remove = async (r: Row) => {
     if (!confirm(`Delete ${r.label}?`)) return;
-    const { error } = await supabase.from("pizza_options").delete().eq("key", r.key);
+    const { error } = await db.from("pizza_options").delete().eq("key", r.key);
     if (error) return toast({ title: "Could not delete", description: error.message, variant: "destructive" });
     load();
   };
@@ -55,7 +56,7 @@ export default function AdminPizzaOptions() {
     const s = slug(d.label);
     if (!s || !Number.isFinite(price) || price < 0) return toast({ title: "Enter a name and a valid price", variant: "destructive" });
     const sort = Math.max(0, ...rows.filter((r) => r.key.startsWith(`${prefix}:`)).map((r) => r.sort)) + 1;
-    const { error } = await supabase.from("pizza_options").insert({ key: `${prefix}:${s}`, label: d.label.trim(), price, sort });
+    const { error } = await db.from("pizza_options").insert({ key: `${prefix}:${s}`, label: d.label.trim(), price, sort });
     if (error) return toast({ title: "Could not add", description: error.message.includes("duplicate") ? "This option already exists" : error.message, variant: "destructive" });
     setDrafts((x) => ({ ...x, [prefix]: { label: "", price: "" } }));
     load();
