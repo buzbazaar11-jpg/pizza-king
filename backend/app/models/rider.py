@@ -57,3 +57,9 @@ class RiderPayout(IdMixin, Base):
     amount: Mapped[float] = mapped_column(Numeric(10, 2))
     status: Mapped[str] = mapped_column(String(20), default="pending")
     note: Mapped[str | None] = mapped_column(Text)
+
+
+class RiderShift(IdMixin, Base):
+    __tablename__ = "rider_shifts"
+    rider_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    ended_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
