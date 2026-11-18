@@ -289,6 +289,7 @@ export default function AdminDineIn() {
             {tables.map((t) => (
               <Card key={t.id} className="p-3 space-y-2 text-center">
                 <div className="flex justify-between items-center"><p className="font-bold">{t.name}</p>{activeByTable[t.table_no] ? <Badge variant="destructive">{activeByTable[t.table_no]} live</Badge> : <Badge variant="secondary">Free</Badge>}</div>
+                <p className="text-xs text-muted-foreground">{t.seats} seats</p>
                 {qrs[t.id] ? <img src={framed[t.id] || qrs[t.id]} alt={`QR for ${t.name}`} className="w-full rounded cursor-pointer" onClick={() => setPreview(t)} /> : <QrCode className="w-full h-24 opacity-30" />}
                 <p className="text-xs font-mono">{t.code}</p>
                 <div className="flex justify-center gap-1 flex-wrap">
