@@ -32,10 +32,14 @@ export default function POSShift() {
   const [history, setHistory] = useState<Shift[]>([]);
   const [loading, setLoading] = useState(true);
   const [opening, setOpening] = useState("");
+  const [staffName, setStaffName] = useState("");
   const [closing, setClosing] = useState("");
   const [notes, setNotes] = useState("");
   const [busy, setBusy] = useState(false);
   const [cashSales, setCashSales] = useState(0);
+  const [cardSales, setCardSales] = useState(0);
+  const [totalSales, setTotalSales] = useState(0);
+  const [orderCount, setOrderCount] = useState(0);
 
   const load = useCallback(async () => {
     const { data } = await supabase
@@ -50,30 +54,46 @@ export default function POSShift() {
     setLoading(false);
 
     if (open) {
+      // Include ALL sources (not just pos) to reflect all restaurant sales
       const { data: orders } = await supabase
         .from("orders")
-        .select("amount_paid,payment_method,created_at")
-        .eq("source", "pos")
+        .select("total,payment_method,created_at")
         .gte("created_at", open.opened_at);
-      const total = ((orders as any[]) || [])
-        .filter((o) => (o.payment_method || "cash") === "cash")
-        .reduce((s, o) => s + Number(o.amount_paid || 0), 0);
-      setCashSales(total);
+      const allOrders = (orders as any[]) || [];
+      const cash = allOrders
+        .filter((o) => (o.payment_method || "cash").toLowerCase() === "cash")
+        .reduce((s, o) => s + Number(o.total || 0), 0);
+      const card = allOrders
+        .filter((o) => {
+          const pm = (o.payment_method || "").toLowerCase();
+          return pm === "card" || pm === "credit" || pm === "debit" || pm === "online";
+        })
+        .reduce((s, o) => s + Number(o.total || 0), 0);
+      const total = allOrders.reduce((s, o) => s + Number(o.total || 0), 0);
+      setCashSales(cash);
+      setCardSales(card);
+      setTotalSales(total);
+      setOrderCount(allOrders.length);
     } else {
       setCashSales(0);
+      setCardSales(0);
+      setTotalSales(0);
+      setOrderCount(0);
     }
   }, []);
 
   useEffect(() => {
     load();
-  }, [load]);
+    // Pre-fill staff name from user email
+    if (user?.email) setStaffName(user.email);
+  }, [load, user]);
 
   const openShift = async () => {
     if (!user) return;
     setBusy(true);
     const { error } = await supabase.from("pos_shifts" as any).insert({
       cashier_id: user.id,
-      cashier_name: user.email ?? null,
+      cashier_name: staffName.trim() || user.email || null,
       opening_cash: Number(opening) || 0,
     } as never);
     setBusy(false);
@@ -89,12 +109,14 @@ export default function POSShift() {
   const closeShift = async () => {
     if (!current) return;
     setBusy(true);
-    const expected = Number(current.opening_cash) + cashSales;
+    // variance = closingCash - openingCash - cashSales
+    const closingCash = Number(closing) || 0;
+    const variance = closingCash - Number(current.opening_cash) - cashSales;
     const { error } = await supabase
       .from("pos_shifts" as any)
       .update({
-        closing_cash: Number(closing) || 0,
-        expected_cash: expected,
+        closing_cash: closingCash,
+        expected_cash: Number(current.opening_cash) + cashSales,
         closed_at: new Date().toISOString(),
         notes: notes.trim() || null,
       } as never)
@@ -106,7 +128,7 @@ export default function POSShift() {
     }
     setClosing("");
     setNotes("");
-    toast({ title: "Shift closed" });
+    toast({ title: `Shift closed. Variance: ${money(variance)}` });
     load();
   };
 
@@ -118,7 +140,8 @@ export default function POSShift() {
     );
   }
 
-  const expected = current ? Number(current.opening_cash) + cashSales : 0;
+  const closingCash = Number(closing) || 0;
+  const variance = closingCash - Number(current?.opening_cash ?? 0) - cashSales;
 
   return (
     <POSLayout title="Cash shift">
@@ -134,23 +157,43 @@ export default function POSShift() {
               </div>
               <Badge>Open</Badge>
             </div>
-            <div className="grid grid-cols-3 gap-3 text-center">
+
+            {/* Running totals */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
               <div className="rounded-lg bg-muted p-3">
                 <p className="text-xs text-muted-foreground">Opening cash</p>
                 <p className="font-bold">{money(Number(current.opening_cash))}</p>
               </div>
               <div className="rounded-lg bg-muted p-3">
-                <p className="text-xs text-muted-foreground">Cash sales</p>
-                <p className="font-bold">{money(cashSales)}</p>
+                <p className="text-xs text-muted-foreground">Total sales</p>
+                <p className="font-bold">{money(totalSales)}</p>
+              </div>
+              <div className="rounded-lg bg-muted p-3">
+                <p className="text-xs text-muted-foreground">Orders</p>
+                <p className="font-bold">{orderCount}</p>
               </div>
               <div className="rounded-lg bg-primary/10 p-3">
                 <p className="text-xs text-muted-foreground">Expected in drawer</p>
-                <p className="font-bold text-primary">{money(expected)}</p>
+                <p className="font-bold text-primary">{money(Number(current.opening_cash) + cashSales)}</p>
               </div>
             </div>
+
+            {/* Cash vs Card breakdown */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="rounded-lg bg-green-50 dark:bg-green-950/30 p-3 text-center">
+                <p className="text-xs text-muted-foreground">Cash sales</p>
+                <p className="font-bold text-green-700 dark:text-green-400">{money(cashSales)}</p>
+              </div>
+              <div className="rounded-lg bg-blue-50 dark:bg-blue-950/30 p-3 text-center">
+                <p className="text-xs text-muted-foreground">Card / Online sales</p>
+                <p className="font-bold text-blue-700 dark:text-blue-400">{money(cardSales)}</p>
+              </div>
+            </div>
+
+            {/* Close shift */}
             <div className="grid gap-3 sm:grid-cols-2">
               <div>
-                <Label>Counted cash</Label>
+                <Label>Counted cash in drawer</Label>
                 <Input inputMode="decimal" value={closing} onChange={(e) => setClosing(e.target.value)} />
               </div>
               <div>
@@ -160,9 +203,9 @@ export default function POSShift() {
             </div>
             {closing !== "" && (
               <p className="text-sm">
-                Difference:{" "}
-                <span className={Number(closing) - expected < 0 ? "text-destructive font-bold" : "font-bold"}>
-                  {money(Number(closing) - expected)}
+                Variance (counted − opening − cash sales):{" "}
+                <span className={variance < 0 ? "text-destructive font-bold" : "text-green-600 font-bold"}>
+                  {money(variance)}
                 </span>
               </p>
             )}
@@ -177,7 +220,15 @@ export default function POSShift() {
               <p className="font-semibold">Start a new shift</p>
             </div>
             <div>
-              <Label>Opening cash in drawer</Label>
+              <Label>Staff name</Label>
+              <Input
+                value={staffName}
+                placeholder={user?.email || "Staff name"}
+                onChange={(e) => setStaffName(e.target.value)}
+              />
+            </div>
+            <div>
+              <Label>Opening cash in drawer (PKR)</Label>
               <Input inputMode="decimal" value={opening} onChange={(e) => setOpening(e.target.value)} />
             </div>
             <Button className="w-full" disabled={busy} onClick={openShift}>
@@ -192,6 +243,7 @@ export default function POSShift() {
             <Card className="p-6 text-center text-sm text-muted-foreground">No closed shifts yet.</Card>
           ) : (
             history.map((s) => {
+              // variance = closingCash - openingCash - cashSales (approximated from stored expected_cash)
               const diff = Number(s.closing_cash || 0) - Number(s.expected_cash || 0);
               return (
                 <Card key={s.id} className="p-4 flex items-center gap-3">

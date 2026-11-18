@@ -18,6 +18,20 @@ interface Staff {
   created_at: string;
 }
 
+function getFunctionErrorMessage(e: unknown): string {
+  if (!e) return "Unknown error";
+  if (typeof e === "string") return e;
+  const err = e as any;
+  // Edge function may return error in body as JSON string
+  const msg = err?.message || err?.error || err?.details || String(e);
+  try {
+    const parsed = JSON.parse(msg);
+    return parsed?.error || parsed?.message || msg;
+  } catch {
+    return msg;
+  }
+}
+
 export default function POSStaff() {
   const { toast } = useToast();
   const [staff, setStaff] = useState<Staff[]>([]);
@@ -25,11 +39,12 @@ export default function POSStaff() {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({ email: "", password: "", full_name: "" });
   const [busy, setBusy] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
 
   const call = useCallback(
     async (body: Record<string, unknown>) => {
       const { data, error } = await supabase.functions.invoke("admin-create-staff", { body });
-      if (error) throw new Error(error.message);
+      if (error) throw error;
       if ((data as any)?.error) throw new Error((data as any).error);
       return data as any;
     },
@@ -41,7 +56,7 @@ export default function POSStaff() {
       const data = await call({ action: "list" });
       setStaff(data.staff || []);
     } catch (e) {
-      toast({ title: "Load failed", description: (e as Error).message, variant: "destructive" });
+      toast({ title: "Load failed", description: getFunctionErrorMessage(e), variant: "destructive" });
     }
     setLoading(false);
   }, [call, toast]);
@@ -50,12 +65,22 @@ export default function POSStaff() {
     load();
   }, [load]);
 
+  const handleOpenChange = (val: boolean) => {
+    setOpen(val);
+    if (val) {
+      // Clear form error whenever dialog opens
+      setFormError(null);
+      setForm({ email: "", password: "", full_name: "" });
+    }
+  };
+
   const create = async () => {
     if (!form.email.trim() || form.password.length < 6) {
-      toast({ title: "Email and a password of at least 6 characters are required", variant: "destructive" });
+      setFormError("Email and a password of at least 6 characters are required.");
       return;
     }
     setBusy(true);
+    setFormError(null);
     try {
       await call({ action: "create", ...form, email: form.email.trim() });
       toast({ title: "Staff account ready" });
@@ -63,7 +88,10 @@ export default function POSStaff() {
       setOpen(false);
       load();
     } catch (e) {
-      toast({ title: "Create failed", description: (e as Error).message, variant: "destructive" });
+      const errMsg = getFunctionErrorMessage(e);
+      // Show recoverable errors inside the form; do NOT close the dialog
+      setFormError(errMsg);
+      toast({ title: "Create failed", description: errMsg, variant: "destructive" });
     }
     setBusy(false);
   };
@@ -79,7 +107,7 @@ export default function POSStaff() {
       await call({ action: "reset_password", email: s.email, password });
       toast({ title: "Password updated" });
     } catch (e) {
-      toast({ title: "Reset failed", description: (e as Error).message, variant: "destructive" });
+      toast({ title: "Reset failed", description: getFunctionErrorMessage(e), variant: "destructive" });
     }
   };
 
@@ -88,7 +116,7 @@ export default function POSStaff() {
       <div className="space-y-4 max-w-3xl">
         <div className="flex items-center justify-between">
           <p className="text-sm text-muted-foreground">{staff.length} accounts with terminal access</p>
-          <Dialog open={open} onOpenChange={setOpen}>
+          <Dialog open={open} onOpenChange={handleOpenChange}>
             <DialogTrigger asChild>
               <Button className="gap-2">
                 <Plus className="w-4 h-4" /> Add staff
@@ -108,16 +136,19 @@ export default function POSStaff() {
                   <Input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
                 </div>
                 <div>
-                  <Label>Password</Label>
+                  <Label>Password (min 6 characters)</Label>
                   <Input
-                    type="text"
+                    type="password"
                     value={form.password}
                     onChange={(e) => setForm({ ...form, password: e.target.value })}
                   />
                 </div>
                 <Button className="w-full" disabled={busy} onClick={create}>
-                  {busy ? "Creating" : "Create account"}
+                  {busy ? "Creating…" : "Create account"}
                 </Button>
+                {formError && (
+                  <p className="text-sm text-destructive mt-1">{formError}</p>
+                )}
               </div>
             </DialogContent>
           </Dialog>
