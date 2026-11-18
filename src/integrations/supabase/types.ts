@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.18"
+    PostgrestVersion: "14.15"
   }
   public: {
     Tables: {
@@ -224,65 +224,6 @@ export type Database = {
         }
         Relationships: []
       }
-      dine_in_orders: {
-        Row: {
-          created_at: string
-          customer_name: string
-          customer_phone: string | null
-          id: string
-          items: Json
-          notes: string | null
-          placed_by: string
-          status: string
-          table_id: string | null
-          table_name: string
-          table_no: number
-          total: number
-          tracking_token: string
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          customer_name: string
-          customer_phone?: string | null
-          id?: string
-          items?: Json
-          notes?: string | null
-          placed_by?: string
-          status?: string
-          table_id?: string | null
-          table_name?: string
-          table_no: number
-          total?: number
-          tracking_token?: string
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          customer_name?: string
-          customer_phone?: string | null
-          id?: string
-          items?: Json
-          notes?: string | null
-          placed_by?: string
-          status?: string
-          table_id?: string | null
-          table_name?: string
-          table_no?: number
-          total?: number
-          tracking_token?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "dine_in_orders_table_id_fkey"
-            columns: ["table_id"]
-            isOneToOne: false
-            referencedRelation: "pos_tables"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       foods: {
         Row: {
           active: boolean
@@ -366,93 +307,6 @@ export type Database = {
         }
         Relationships: []
       }
-      module_orders: {
-        Row: {
-          amount: number
-          approved_at: string | null
-          buyer_email: string
-          buyer_name: string
-          buyer_phone: string
-          id: string
-          module_key: string
-          module_name: string
-          notes: string | null
-          order_token: string
-          plan_type: string
-          screenshot_data_url: string | null
-          screenshot_url: string | null
-          status: string
-          submitted_at: string | null
-          txn_id: string
-        }
-        Insert: {
-          amount: number
-          approved_at?: string | null
-          buyer_email: string
-          buyer_name: string
-          buyer_phone: string
-          id?: string
-          module_key: string
-          module_name: string
-          notes?: string | null
-          order_token?: string
-          plan_type: string
-          screenshot_data_url?: string | null
-          screenshot_url?: string | null
-          status?: string
-          submitted_at?: string | null
-          txn_id: string
-        }
-        Update: {
-          amount?: number
-          approved_at?: string | null
-          buyer_email?: string
-          buyer_name?: string
-          buyer_phone?: string
-          id?: string
-          module_key?: string
-          module_name?: string
-          notes?: string | null
-          order_token?: string
-          plan_type?: string
-          screenshot_data_url?: string | null
-          screenshot_url?: string | null
-          status?: string
-          submitted_at?: string | null
-          txn_id?: string
-        }
-        Relationships: []
-      }
-      module_prices: {
-        Row: {
-          description: string | null
-          id: string
-          module_key: string
-          module_name: string
-          monthly_price: number
-          one_time_price: number
-          updated_at: string | null
-        }
-        Insert: {
-          description?: string | null
-          id?: string
-          module_key: string
-          module_name: string
-          monthly_price?: number
-          one_time_price?: number
-          updated_at?: string | null
-        }
-        Update: {
-          description?: string | null
-          id?: string
-          module_key?: string
-          module_name?: string
-          monthly_price?: number
-          one_time_price?: number
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
       order_items: {
         Row: {
           created_at: string
@@ -501,19 +355,14 @@ export type Database = {
       orders: {
         Row: {
           amount_paid: number
-          assigned_at: string | null
           coupon_code: string | null
           created_at: string
           customer_address: string | null
           customer_email: string | null
           customer_name: string | null
           customer_phone: string | null
-          delivered_at: string | null
           delivery_charges: number
-          delivery_lat: number | null
-          delivery_lng: number | null
           discount_amount: number
-          distance_km: number | null
           id: string
           notes: string | null
           order_type: string
@@ -530,19 +379,14 @@ export type Database = {
         }
         Insert: {
           amount_paid?: number
-          assigned_at?: string | null
           coupon_code?: string | null
           created_at?: string
           customer_address?: string | null
           customer_email?: string | null
           customer_name?: string | null
           customer_phone?: string | null
-          delivered_at?: string | null
           delivery_charges?: number
-          delivery_lat?: number | null
-          delivery_lng?: number | null
           discount_amount?: number
-          distance_km?: number | null
           id?: string
           notes?: string | null
           order_type?: string
@@ -559,19 +403,14 @@ export type Database = {
         }
         Update: {
           amount_paid?: number
-          assigned_at?: string | null
           coupon_code?: string | null
           created_at?: string
           customer_address?: string | null
           customer_email?: string | null
           customer_name?: string | null
           customer_phone?: string | null
-          delivered_at?: string | null
           delivery_charges?: number
-          delivery_lat?: number | null
-          delivery_lng?: number | null
           discount_amount?: number
-          distance_km?: number | null
           id?: string
           notes?: string | null
           order_type?: string
@@ -585,206 +424,6 @@ export type Database = {
           table_no?: string | null
           total?: number
           user_id?: string
-        }
-        Relationships: []
-      }
-      package_features: {
-        Row: {
-          created_at: string | null
-          feature_text: string
-          id: string
-          package_id: string | null
-          sort_order: number | null
-        }
-        Insert: {
-          created_at?: string | null
-          feature_text: string
-          id?: string
-          package_id?: string | null
-          sort_order?: number | null
-        }
-        Update: {
-          created_at?: string | null
-          feature_text?: string
-          id?: string
-          package_id?: string | null
-          sort_order?: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "package_features_package_id_fkey"
-            columns: ["package_id"]
-            isOneToOne: false
-            referencedRelation: "subscription_packages"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      package_modules: {
-        Row: {
-          created_at: string | null
-          id: string
-          module_key: string
-          package_id: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string
-          module_key: string
-          package_id?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          id?: string
-          module_key?: string
-          package_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "package_modules_package_id_fkey"
-            columns: ["package_id"]
-            isOneToOne: false
-            referencedRelation: "subscription_packages"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      package_order_status_history: {
-        Row: {
-          created_at: string | null
-          created_by: string | null
-          id: string
-          note: string | null
-          order_id: string | null
-          status: string
-        }
-        Insert: {
-          created_at?: string | null
-          created_by?: string | null
-          id?: string
-          note?: string | null
-          order_id?: string | null
-          status: string
-        }
-        Update: {
-          created_at?: string | null
-          created_by?: string | null
-          id?: string
-          note?: string | null
-          order_id?: string | null
-          status?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "package_order_status_history_order_id_fkey"
-            columns: ["order_id"]
-            isOneToOne: false
-            referencedRelation: "package_orders"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      package_orders: {
-        Row: {
-          admin_remarks: string | null
-          amount: number
-          billing_type: string
-          buyer_email: string
-          buyer_name: string
-          buyer_phone: string
-          category: string
-          created_at: string | null
-          custom_modules: string[] | null
-          id: string
-          order_token: string
-          package_id: string | null
-          package_name: string
-          plan_key: string
-          screenshot_data_url: string | null
-          status: string
-          subscription_end: string | null
-          subscription_start: string | null
-          txn_id: string
-          updated_at: string | null
-        }
-        Insert: {
-          admin_remarks?: string | null
-          amount: number
-          billing_type: string
-          buyer_email: string
-          buyer_name: string
-          buyer_phone: string
-          category: string
-          created_at?: string | null
-          custom_modules?: string[] | null
-          id?: string
-          order_token?: string
-          package_id?: string | null
-          package_name: string
-          plan_key: string
-          screenshot_data_url?: string | null
-          status?: string
-          subscription_end?: string | null
-          subscription_start?: string | null
-          txn_id: string
-          updated_at?: string | null
-        }
-        Update: {
-          admin_remarks?: string | null
-          amount?: number
-          billing_type?: string
-          buyer_email?: string
-          buyer_name?: string
-          buyer_phone?: string
-          category?: string
-          created_at?: string | null
-          custom_modules?: string[] | null
-          id?: string
-          order_token?: string
-          package_id?: string | null
-          package_name?: string
-          plan_key?: string
-          screenshot_data_url?: string | null
-          status?: string
-          subscription_end?: string | null
-          subscription_start?: string | null
-          txn_id?: string
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "package_orders_package_id_fkey"
-            columns: ["package_id"]
-            isOneToOne: false
-            referencedRelation: "subscription_packages"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      pizza_options: {
-        Row: {
-          active: boolean
-          key: string
-          label: string
-          price: number
-          sort: number
-          updated_at: string
-        }
-        Insert: {
-          active?: boolean
-          key: string
-          label: string
-          price?: number
-          sort?: number
-          updated_at?: string
-        }
-        Update: {
-          active?: boolean
-          key?: string
-          label?: string
-          price?: number
-          sort?: number
-          updated_at?: string
         }
         Relationships: []
       }
@@ -867,7 +506,6 @@ export type Database = {
         Row: {
           active: boolean
           area: string
-          code: string | null
           created_at: string
           id: string
           name: string
@@ -879,7 +517,6 @@ export type Database = {
         Insert: {
           active?: boolean
           area?: string
-          code?: string | null
           created_at?: string
           id?: string
           name: string
@@ -891,7 +528,6 @@ export type Database = {
         Update: {
           active?: boolean
           area?: string
-          code?: string | null
           created_at?: string
           id?: string
           name?: string
@@ -974,33 +610,6 @@ export type Database = {
         }
         Relationships: []
       }
-      qr_frame_settings: {
-        Row: {
-          frame_image_url: string | null
-          frame_style: string
-          headline: string
-          id: number
-          tagline: string
-          updated_at: string
-        }
-        Insert: {
-          frame_image_url?: string | null
-          frame_style?: string
-          headline?: string
-          id?: number
-          tagline?: string
-          updated_at?: string
-        }
-        Update: {
-          frame_image_url?: string | null
-          frame_style?: string
-          headline?: string
-          id?: number
-          tagline?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
       referrals: {
         Row: {
           created_at: string
@@ -1078,7 +687,6 @@ export type Database = {
           id: string
           rider_id: string
           status: string
-          storage_path: string | null
         }
         Insert: {
           created_at?: string
@@ -1088,7 +696,6 @@ export type Database = {
           id?: string
           rider_id: string
           status?: string
-          storage_path?: string | null
         }
         Update: {
           created_at?: string
@@ -1098,50 +705,8 @@ export type Database = {
           id?: string
           rider_id?: string
           status?: string
-          storage_path?: string | null
         }
         Relationships: []
-      }
-      rider_gps_points: {
-        Row: {
-          accuracy: number
-          id: string
-          lat: number
-          lng: number
-          order_id: string
-          recorded_at: string
-          rider_id: string
-          segment_km: number
-        }
-        Insert: {
-          accuracy: number
-          id?: string
-          lat: number
-          lng: number
-          order_id: string
-          recorded_at?: string
-          rider_id: string
-          segment_km?: number
-        }
-        Update: {
-          accuracy?: number
-          id?: string
-          lat?: number
-          lng?: number
-          order_id?: string
-          recorded_at?: string
-          rider_id?: string
-          segment_km?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "rider_gps_points_order_id_fkey"
-            columns: ["order_id"]
-            isOneToOne: false
-            referencedRelation: "orders"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       rider_messages: {
         Row: {
@@ -1266,8 +831,6 @@ export type Database = {
           id: string
           min_payout: number
           payout_schedule: string
-          per_km_rate: number
-          points_per_order: number
           support_phone: string
           support_whatsapp: string
           updated_at: string
@@ -1277,8 +840,6 @@ export type Database = {
           id?: string
           min_payout?: number
           payout_schedule?: string
-          per_km_rate?: number
-          points_per_order?: number
           support_phone?: string
           support_whatsapp?: string
           updated_at?: string
@@ -1288,99 +849,11 @@ export type Database = {
           id?: string
           min_payout?: number
           payout_schedule?: string
-          per_km_rate?: number
-          points_per_order?: number
           support_phone?: string
           support_whatsapp?: string
           updated_at?: string
         }
         Relationships: []
-      }
-      subscription_packages: {
-        Row: {
-          category: string
-          created_at: string | null
-          description: string | null
-          id: string
-          is_enabled: boolean | null
-          is_popular: boolean | null
-          monthly_price: number
-          name: string
-          one_time_price: number
-          plan_key: string
-          tier: number
-          updated_at: string | null
-        }
-        Insert: {
-          category: string
-          created_at?: string | null
-          description?: string | null
-          id?: string
-          is_enabled?: boolean | null
-          is_popular?: boolean | null
-          monthly_price?: number
-          name: string
-          one_time_price?: number
-          plan_key: string
-          tier: number
-          updated_at?: string | null
-        }
-        Update: {
-          category?: string
-          created_at?: string | null
-          description?: string | null
-          id?: string
-          is_enabled?: boolean | null
-          is_popular?: boolean | null
-          monthly_price?: number
-          name?: string
-          one_time_price?: number
-          plan_key?: string
-          tier?: number
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
-      table_service_requests: {
-        Row: {
-          attended_at: string | null
-          created_at: string
-          id: string
-          request_type: string
-          status: string
-          table_id: string | null
-          table_name: string
-          table_no: number
-        }
-        Insert: {
-          attended_at?: string | null
-          created_at?: string
-          id?: string
-          request_type: string
-          status?: string
-          table_id?: string | null
-          table_name: string
-          table_no: number
-        }
-        Update: {
-          attended_at?: string | null
-          created_at?: string
-          id?: string
-          request_type?: string
-          status?: string
-          table_id?: string | null
-          table_name?: string
-          table_no?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "table_service_requests_table_id_fkey"
-            columns: ["table_id"]
-            isOneToOne: false
-            referencedRelation: "pos_tables"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       testimonials: {
         Row: {
@@ -1488,9 +961,6 @@ export type Database = {
           free_delivery_above: number
           id: string
           instagram_url: string | null
-          logo_url: string | null
-          maintenance_message: string
-          maintenance_mode: boolean
           opening_hours_weekday: string
           opening_hours_weekend: string
           restaurant_name: string
@@ -1506,9 +976,6 @@ export type Database = {
           free_delivery_above?: number
           id?: string
           instagram_url?: string | null
-          logo_url?: string | null
-          maintenance_message?: string
-          maintenance_mode?: boolean
           opening_hours_weekday?: string
           opening_hours_weekend?: string
           restaurant_name?: string
@@ -1524,9 +991,6 @@ export type Database = {
           free_delivery_above?: number
           id?: string
           instagram_url?: string | null
-          logo_url?: string | null
-          maintenance_message?: string
-          maintenance_mode?: boolean
           opening_hours_weekday?: string
           opening_hours_weekend?: string
           restaurant_name?: string
@@ -1540,346 +1004,12 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      admin_has_paid_module: {
-        Args: { p_module_key: string }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
         Returns: boolean
-      }
-      delete_package_order: {
-        Args: { p_order_id: string; p_secret: string }
-        Returns: undefined
-      }
-      disable_package: {
-        Args: { p_plan_key: string; p_secret: string }
-        Returns: undefined
-      }
-      get_dine_in_order: {
-        Args: { _id: string }
-        Returns: {
-          created_at: string
-          customer_name: string
-          id: string
-          items: Json
-          status: string
-          table_name: string
-          table_no: number
-          total: number
-          updated_at: string
-        }[]
-      }
-      get_dine_in_order_by_token: {
-        Args: { _tracking_token: string }
-        Returns: {
-          created_at: string
-          customer_name: string
-          id: string
-          items: Json
-          status: string
-          table_name: string
-          table_no: number
-          total: number
-          updated_at: string
-        }[]
-      }
-      get_module_order_by_token: {
-        Args: { p_order_token: string }
-        Returns: {
-          amount: number
-          approved_at: string
-          buyer_email: string
-          buyer_name: string
-          buyer_phone: string
-          id: string
-          module_key: string
-          module_name: string
-          notes: string
-          order_token: string
-          plan_type: string
-          screenshot_data_url: string
-          screenshot_url: string
-          status: string
-          submitted_at: string
-          txn_id: string
-        }[]
-      }
-      get_my_subscription_entitlements: {
-        Args: never
-        Returns: {
-          billing_type: string
-          category: string
-          custom_modules: string[]
-          id: string
-          package_name: string
-          plan_key: string
-          status: string
-          subscription_end: string
-          subscription_start: string
-        }[]
-      }
-      get_package_order_by_token: {
-        Args: { p_order_token: string }
-        Returns: {
-          admin_remarks: string
-          amount: number
-          billing_type: string
-          buyer_email: string
-          buyer_name: string
-          buyer_phone: string
-          category: string
-          created_at: string
-          custom_modules: string[]
-          id: string
-          order_token: string
-          package_id: string
-          package_name: string
-          package_order_status_history: Json
-          plan_key: string
-          screenshot_data_url: string
-          status: string
-          subscription_end: string
-          subscription_start: string
-          txn_id: string
-          updated_at: string
-        }[]
-      }
-      get_public_delivery_config: { Args: never; Returns: Json }
-      get_public_module_prices: {
-        Args: never
-        Returns: {
-          description: string
-          module_key: string
-          module_name: string
-          monthly_price: number
-          one_time_price: number
-          updated_at: string
-        }[]
-      }
-      get_public_website_settings: { Args: never; Returns: Json }
-      get_table_by_code: {
-        Args: { _code: string }
-        Returns: {
-          id: string
-          name: string
-          seats: number
-          table_no: number
-        }[]
-      }
-      grant_package_order: {
-        Args: {
-          p_admin_remarks: string
-          p_amount: number
-          p_billing_type: string
-          p_buyer_email: string
-          p_buyer_name: string
-          p_buyer_phone: string
-          p_category: string
-          p_custom_modules: string[]
-          p_package_name: string
-          p_plan_key: string
-          p_status: string
-          p_subscription_end: string
-          p_subscription_start: string
-        }
-        Returns: string
-      }
-      has_role:
-        | {
-            Args: {
-              _role: Database["public"]["Enums"]["app_role"]
-              _user_id: string
-            }
-            Returns: boolean
-          }
-        | { Args: { _role: string; _user_id: string }; Returns: boolean }
-      is_confirmed_auth_email: { Args: { p_email: string }; Returns: boolean }
-      pizza_option_catalog: {
-        Args: never
-        Returns: {
-          key: string
-          label: string
-          price: number
-          sort: number
-        }[]
-      }
-      place_customer_order: {
-        Args: {
-          p_coupon_code: string
-          p_customer_address: string
-          p_customer_name: string
-          p_customer_phone: string
-          p_delivery_lat: number
-          p_delivery_lng: number
-          p_items: Json
-          p_points_redeemed: number
-        }
-        Returns: string
-      }
-      place_dine_in_order: {
-        Args: {
-          _code: string
-          _items: Json
-          _name: string
-          _notes: string
-          _phone: string
-        }
-        Returns: string
-      }
-      place_dine_in_order_with_token: {
-        Args: {
-          _code: string
-          _items: Json
-          _name: string
-          _notes: string
-          _phone: string
-        }
-        Returns: Json
-      }
-      place_pos_order: {
-        Args: {
-          p_amount_paid: number
-          p_customer_address: string
-          p_customer_name: string
-          p_customer_phone: string
-          p_delivery_charges: number
-          p_discount_amount: number
-          p_items: Json
-          p_notes: string
-          p_order_type: string
-          p_payment_method: string
-          p_table_no: string
-        }
-        Returns: Json
-      }
-      place_staff_dine_in_order: {
-        Args: {
-          _items: Json
-          _name: string
-          _notes: string
-          _phone: string
-          _table_id: string
-        }
-        Returns: Json
-      }
-      record_rider_gps: {
-        Args: {
-          _accuracy: number
-          _lat: number
-          _lng: number
-          _order_id: string
-        }
-        Returns: number
-      }
-      request_table_service: {
-        Args: { _code: string; _type: string }
-        Returns: undefined
-      }
-      set_package_features: {
-        Args: { p_features: string[]; p_plan_key: string; p_secret: string }
-        Returns: undefined
-      }
-      set_package_modules: {
-        Args: { p_module_keys: string[]; p_plan_key: string; p_secret: string }
-        Returns: undefined
-      }
-      submit_module_order: {
-        Args: {
-          p_buyer_email: string
-          p_buyer_name: string
-          p_buyer_phone: string
-          p_module_key: string
-          p_plan_type: string
-          p_screenshot_data_url: string
-          p_txn_id: string
-        }
-        Returns: string
-      }
-      submit_package_order: {
-        Args: {
-          p_billing_type: string
-          p_buyer_email: string
-          p_buyer_name: string
-          p_buyer_phone: string
-          p_package_id: string
-          p_screenshot_data_url: string
-          p_txn_id: string
-        }
-        Returns: string
-      }
-      update_order_status: {
-        Args: { p_order_id: string; p_secret: string; p_status: string }
-        Returns: undefined
-      }
-      update_package_order:
-        | {
-            Args: {
-              p_admin_remarks: string
-              p_amount: number
-              p_billing_type: string
-              p_buyer_email: string
-              p_buyer_name: string
-              p_buyer_phone: string
-              p_order_id: string
-              p_secret: string
-              p_status: string
-              p_subscription_end: string
-              p_subscription_start: string
-              p_txn_id: string
-            }
-            Returns: undefined
-          }
-        | {
-            Args: {
-              p_admin_remarks: string
-              p_amount: number
-              p_billing_type: string
-              p_buyer_email: string
-              p_buyer_name: string
-              p_buyer_phone: string
-              p_custom_modules?: string[]
-              p_order_id: string
-              p_package_name?: string
-              p_plan_key?: string
-              p_secret: string
-              p_status: string
-              p_subscription_end: string
-              p_subscription_start: string
-              p_txn_id: string
-            }
-            Returns: undefined
-          }
-      update_package_order_status: {
-        Args: {
-          p_admin_remarks: string
-          p_order_id: string
-          p_secret: string
-          p_status: string
-        }
-        Returns: undefined
-      }
-      upsert_module_price: {
-        Args: {
-          p_description: string
-          p_module_key: string
-          p_module_name: string
-          p_monthly_price: number
-          p_one_time_price: number
-          p_secret: string
-        }
-        Returns: undefined
-      }
-      upsert_package: {
-        Args: {
-          p_category: string
-          p_description: string
-          p_is_enabled: boolean
-          p_is_popular: boolean
-          p_monthly_price: number
-          p_name: string
-          p_one_time_price: number
-          p_plan_key: string
-          p_secret: string
-          p_tier: number
-        }
-        Returns: string
       }
     }
     Enums: {
