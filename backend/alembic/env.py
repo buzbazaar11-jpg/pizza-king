@@ -20,9 +20,15 @@ if config.config_file_name is not None:
 
 target_metadata = Base.metadata
 
-# Override sqlalchemy.url — convert asyncpg URL to psycopg2 for alembic
-sync_url = settings.DATABASE_URL.replace("postgresql+asyncpg://", "postgresql+psycopg2://")
+# Convert asyncpg URL → psycopg2 for Alembic (Alembic uses sync engine)
+# Also handle Supabase SSL requirement
+_raw = settings.DATABASE_URL
+sync_url = _raw.replace("postgresql+asyncpg://", "postgresql+psycopg2://")
 config.set_main_option("sqlalchemy.url", sync_url)
+
+# Supabase requires SSL — pass connect_args when running against Supabase
+_is_supabase = "supabase.com" in sync_url
+_connect_args = {"sslmode": "require"} if _is_supabase else {}
 
 
 def run_migrations_offline() -> None:
@@ -42,6 +48,7 @@ def run_migrations_online() -> None:
         config.get_section(config.config_ini_section, {}),
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
+        connect_args=_connect_args,
     )
     with connectable.connect() as connection:
         context.configure(connection=connection, target_metadata=target_metadata)
