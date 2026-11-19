@@ -69,8 +69,8 @@ const RiderOrders = () => {
         .order("created_at", { ascending: false }),
     ]);
 
-    setMyOrders((myRes.data || []) as OrderRow[]);
-    setAvailableOrders((availRes.data || []) as OrderRow[]);
+    setMyOrders((myRes.data || []) as unknown as OrderRow[]);
+    setAvailableOrders((availRes.data || []) as unknown as OrderRow[]);
     setLoading(false);
   };
 
