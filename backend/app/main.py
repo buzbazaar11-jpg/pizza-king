@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from app.core.config import settings
-from app.core.database import async_engine
+from app.core.database import async_engine, db_status
 from app.core.security import decode_token
 from app.services.websocket_manager import manager
 
@@ -18,18 +18,27 @@ async def lifespan(app: FastAPI):
     from app.core.database import Base
     import app.models  # noqa: F401 — registers all models with Base
 
-    async with async_engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+    if async_engine is not None:
+        try:
+            async with async_engine.begin() as conn:
+                await conn.run_sync(Base.metadata.create_all)
+            import app.core.database as _d
+            _d.sql_connected = True
+            print("[db] SQLAlchemy connected")
+        except Exception as e:  # keep app running in REST-only mode
+            print(f"[db] SQLAlchemy connection failed: {e}")
+    print(f"[db] mode: {db_status()}")
 
     yield
 
-    await async_engine.dispose()
+    if async_engine is not None:
+        await async_engine.dispose()
 
 
 app = FastAPI(
     title=settings.APP_NAME,
     version="1.0.0",
-    description="Production-ready FastAPI backend for Young Malang fast-food & POS platform",
+    description="Production-ready FastAPI backend for Pizza King fast-food & POS platform",
     lifespan=lifespan,
 )
 
@@ -75,6 +84,11 @@ async def websocket_endpoint(websocket: WebSocket, channel: str, token: str = No
 
 
 # ── Health check ───────────────────────────────────────────────────────────────
+
+@app.get("/health/db", tags=["Health"])
+async def db_health():
+    return db_status()
+
 
 @app.get("/", tags=["Health"])
 async def health_check():

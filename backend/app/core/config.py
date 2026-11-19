@@ -6,7 +6,12 @@ class Settings(BaseSettings):
     # For Supabase: use the Session Pooler (port 5432) connection string.
     # Format: postgresql+asyncpg://postgres.[project-ref]:[password]@aws-0-[region].pooler.supabase.com:5432/postgres
     # Get this from: Supabase Dashboard → Project Settings → Database → Connection string → URI
-    DATABASE_URL: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/youngmalang"
+    DATABASE_URL: str = ""  # optional — direct Postgres (SQLAlchemy)
+
+    # ── Supabase REST client (optional) ───────────────────────────────────────
+    SUPABASE_URL: str = ""
+    SUPABASE_SERVICE_ROLE_KEY: str = ""
+    SUPABASE_ANON_KEY: str = ""
 
     # ── Auth ──────────────────────────────────────────────────────────────────
     SECRET_KEY: str = "supersecret-change-in-production"
