@@ -1,0 +1,90 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1793791847084,
+      "tag": "0000_rider_gps_and_private_documents",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1793899418535,
+      "tag": "0001_tighten_selected_security_findings",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793900650036,
+      "tag": "0002_tighten_selected_order_and_tracking_rpc",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1793901585520,
+      "tag": "0003_add_secure_pos_order_rpc",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1793901695657,
+      "tag": "0004_secure_package_order_deletion",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1793902153491,
+      "tag": "0005_require_active_deals_module_for_catalog_writes",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1793902703974,
+      "tag": "0006_bind_subscription_entitlements_to_verified_user",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1793903850259,
+      "tag": "0007_enable_realtime_orders",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1793982811916,
+      "tag": "0008_preserve_deal_order_items",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1794074880756,
+      "tag": "0009_pizza_customizer_and_table_service",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1794137012372,
+      "tag": "0010_enable_dinein_pizza_customization",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1794251055256,
+      "tag": "0011_admin_pizza_options_and_qr_frames",
+      "breakpoints": true
+    }
+  ]
+}
