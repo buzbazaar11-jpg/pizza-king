@@ -4,7 +4,7 @@ import { Bot, X, Send, Sparkles, ShoppingCart, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase, API_BASE_URL } from "@/lib/backend";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
@@ -12,7 +12,7 @@ export type AIChatHandle = { open: () => void; close: () => void };
 
 type AIChatAssistantProps = { hideTrigger?: boolean };
 
-const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-order-assistant`;
+const CHAT_URL = `${API_BASE_URL}/gateway/functions/v1/ai-order-assistant`;
 
 const AIChatAssistant = forwardRef<AIChatHandle, AIChatAssistantProps>(({ hideTrigger = false }, ref) => {
   const [open, setOpen] = useState(false);
@@ -54,7 +54,7 @@ const AIChatAssistant = forwardRef<AIChatHandle, AIChatAssistantProps>(({ hideTr
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          Authorization: `Bearer fastapi-public`,
         },
         body: JSON.stringify({ messages: allMsgs.map((m) => ({ role: m.role, content: m.content })) }),
       });

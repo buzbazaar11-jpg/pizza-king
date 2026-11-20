@@ -1,7 +1,7 @@
 import RiderLayout from "@/components/rider/RiderLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/backend";
 import { useAuth } from "@/contexts/AuthContext";
 import { Bell, CheckCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";

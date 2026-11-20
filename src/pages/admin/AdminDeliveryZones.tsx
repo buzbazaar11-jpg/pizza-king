@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/backend";
 import AdminLayout from "@/components/admin/AdminLayout";
 import MapPicker from "@/components/MapPicker";
 import { Button } from "@/components/ui/button";

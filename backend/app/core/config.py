@@ -22,7 +22,7 @@ class Settings(BaseSettings):
     REDIS_URL: str = "redis://localhost:6379"
 
     # ── CORS ──────────────────────────────────────────────────────────────────
-    CORS_ORIGINS: list[str] = ["http://localhost:5173", "http://localhost:3000"]
+    CORS_ORIGINS: list[str] = ["http://localhost:8080", "http://127.0.0.1:8080", "http://localhost:5173", "http://localhost:3000"]
 
     # ── Business ──────────────────────────────────────────────────────────────
     CENTER_LAT: float = 33.5651

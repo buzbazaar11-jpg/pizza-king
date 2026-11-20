@@ -2,7 +2,7 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { Search, ArrowDown, Sparkles, Bot } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useRef, useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/backend";
 import heroBg from "@/assets/hero-bg.jpg";
 
 const TypeWriter = ({ texts }: { texts: string[] }) => {

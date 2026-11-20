@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/backend";
 import type { RiderRewardSettings } from "@/lib/riderRewards";
 export function useRiderRewards() {
   const [settings, setSettings] = useState<RiderRewardSettings | null>(null);

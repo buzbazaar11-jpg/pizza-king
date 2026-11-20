@@ -1,4 +1,4 @@
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/backend";
 
 export const POINTS_PER_RUPEE = 0.01; // 1 point per Rs. 100 spent
 export const POINT_VALUE_RUPEES = 1; // 1 point = Rs. 1 when redeemed

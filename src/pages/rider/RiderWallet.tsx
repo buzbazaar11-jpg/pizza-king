@@ -2,7 +2,7 @@ import RiderLayout from "@/components/rider/RiderLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/backend";
 import { useAuth } from "@/contexts/AuthContext";
 import { Wallet, ArrowDownToLine, Clock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";

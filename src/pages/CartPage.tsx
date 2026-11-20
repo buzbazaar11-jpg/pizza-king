@@ -1,6 +1,6 @@
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/backend";
 import {
   Minus, Plus, Trash2, ShoppingBag, MapPin, Phone, User, MessageCircle,
   TicketPercent, Sparkles, X,

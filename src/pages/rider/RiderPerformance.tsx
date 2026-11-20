@@ -1,7 +1,7 @@
 import RiderLayout from "@/components/rider/RiderLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/backend";
 import { useAuth } from "@/contexts/AuthContext";
 import { TrendingUp, Award, Target, Zap } from "lucide-react";
 import { useRiderRewards } from "@/hooks/useRiderRewards";

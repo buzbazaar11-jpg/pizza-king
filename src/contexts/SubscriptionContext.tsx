@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/backend";
 
 export const MODULE_PRICES: Record<string, { name: string; description: string; oneTime: number; monthly: number }> = {
   "/admin/deals": { name: "Deals Management", description: "Create and manage flash deals and promotions", oneTime: 2500, monthly: 999 },

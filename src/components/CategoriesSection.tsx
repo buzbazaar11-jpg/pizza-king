@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { ChevronRight, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/backend";
 import type { Tables } from "@/integrations/supabase/types";
 
 type Category = Tables<"categories">;

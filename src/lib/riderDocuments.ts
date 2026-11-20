@@ -1,4 +1,4 @@
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/backend";
 export const DOCUMENT_TYPES = ["image/jpeg", "image/png", "image/webp", "application/pdf"];
 export function validateDocument(file: Pick<File, "size" | "type">) {
   if (!DOCUMENT_TYPES.includes(file.type)) throw new Error("Choose a JPG, PNG, WebP photo or PDF.");

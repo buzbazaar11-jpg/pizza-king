@@ -1,6 +1,6 @@
 
 import { useEffect, useState, useCallback } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/backend";
 
 export type PackageGroup = "admin" | "rider";
 export type PackageTier = "basic" | "medium" | "advanced";

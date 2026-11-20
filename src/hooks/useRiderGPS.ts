@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/backend";
 export function useRiderGPS(riderId?: string) {
   const [message, setMessage] = useState("GPS idle — no delivery in progress");
   useEffect(() => {

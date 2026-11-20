@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/backend";
 
 // Admin-managed options live in public.pizza_options; the server re-prices every option at checkout.
 export interface PizzaOption { key: string; label: string; price: number; sort?: number; active?: boolean }

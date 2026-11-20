@@ -5,7 +5,7 @@ import { useWishlist } from "@/contexts/WishlistContext";
 import { useToast } from "@/hooks/use-toast";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/backend";
 import type { Tables } from "@/integrations/supabase/types";
 import PizzaCustomizer from "@/components/PizzaCustomizer";
 import { isPizza } from "@/lib/pizzaOptions";

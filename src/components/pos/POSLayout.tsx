@@ -7,7 +7,7 @@ import { usePWAManifest } from "@/hooks/usePWAInstall";
 import { usePushRegistration } from "@/hooks/usePushRegistration";
 import { useInstallPrompt } from "@/hooks/useInstallPrompt";
 import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/backend";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
